@@ -1,5 +1,8 @@
+
+
 void setup() {
   // put your setup code here, to run once:
+	init(0);
 	Serial.begin(9600);
 }
 
