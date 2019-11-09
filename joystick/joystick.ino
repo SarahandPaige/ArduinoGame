@@ -33,19 +33,19 @@ void setup() {
 
 void loop() {
   
-  Serial.println(analogRead(X_pin));
+
   if(analogRead(X_pin)<=600 && analogRead(X_pin)>=500 ){
-    Serial.println("not moving");
+    //Serial.println("not moving");
     
   }else if (analogRead(X_pin)<517){
-    Serial.println("going Down");
+    //Serial.println("going Down");
     if((bar>>7 &1 )!=1){
       bar = bar<<1;
       lc.setRow(0,0,bar);
     }
     
   }else if (analogRead(X_pin)>517){
-    Serial.println("going up");
+    //Serial.println("going up");
     if((bar & 1) !=1){
       bar = bar>>1;
       lc.setRow(0,0,bar);
@@ -63,20 +63,21 @@ void loop() {
 
   
     }else if(ball_row>=1 && ball_row<7){
-   
-      going_down=false;
-      going_up=true;
-      ball_row ++;
-      ball = ball >>1;
-      lc.setRow(0,ball_row,ball);
-      lc.setRow(0,ball_row-1,row_off);
+      if(ball_row==1 && (ball&bar) ==0){
+        end_game = true; 
+        
+      }else{
+        going_down=false;
+        going_up=true;
+        ball_row ++;
+        ball = ball >>1;
+        lc.setRow(0,ball_row,ball);
+        lc.setRow(0,ball_row-1,row_off);
+      }
     
     
     }else{
       
-      if(ball_row==1  && (ball&bar)!=1){
-        end_game = true; 
-      }
       
         
       going_down = true;
@@ -92,7 +93,7 @@ void loop() {
   
   
   
-  delay(100);
+  delay(200);
   
 
 }
