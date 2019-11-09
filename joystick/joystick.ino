@@ -4,11 +4,15 @@ const int SW_pin = 2;
 const int X_pin = 0;
 const int Y_pin = 1;
 int ball_row = 7;
+
 int row_off = B00000000;
+bool going_up = false;
+bool going_down = true;
+bool end_game = false;
 
 LedControl lc=LedControl(12,10,11,1);
 byte bar = B00111000;
-byte ball = B00010000;
+byte ball = B00000001;
 void setup() {
   init();
   Serial.begin(9600);
@@ -28,6 +32,7 @@ void setup() {
 }
 
 void loop() {
+  
   Serial.println(analogRead(X_pin));
   if(analogRead(X_pin)<=600 && analogRead(X_pin)>=500 ){
     Serial.println("not moving");
@@ -47,17 +52,47 @@ void loop() {
     }
   }
   
-  while(ball_row>0){
-    ball_row --;
-    lc.setRow(0,ball_row,ball);
-    lc.setRow(0,ball_row+1,row_off);
-  }
+  if(!end_game){
+    if(ball_row>1 && going_down){
+     
+      ball_row --;
+      ball = ball <<1;
+      
+      lc.setRow(0,ball_row,ball);
+      lc.setRow(0,ball_row+1,row_off);
 
   
+    }else if(ball_row>=1 && ball_row<7){
+   
+      going_down=false;
+      going_up=true;
+      ball_row ++;
+      ball = ball >>1;
+      lc.setRow(0,ball_row,ball);
+      lc.setRow(0,ball_row-1,row_off);
+    
+    
+    }else{
+      
+      if(ball_row==1  && (ball&bar)!=1){
+        end_game = true; 
+      }
+      
+        
+      going_down = true;
+      going_up = false;
+        
+    }    
+    
+  }else{
+    lc.setRow(0,0,row_off);
+  }
   
   
   
-  delay(500);
+  
+  
+  delay(100);
   
 
 }
