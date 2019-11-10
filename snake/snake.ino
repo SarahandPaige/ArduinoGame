@@ -96,9 +96,15 @@ void moving_balls(){
      
       ball_row[0] --; 
       at_row_end[0] = false;
+      if(snake_row==ball_row[0]){
+        lc.setRow(0,ball_row[0],ball[0] | snake);
+        lc.setRow(0,ball_row[0]+1,row_off);
+        
+      }else{
+        lc.setRow(0,ball_row[0],ball[0]);
+        lc.setRow(0,ball_row[0]+1,row_off);
+      }
       
-      lc.setRow(0,ball_row[0],ball[0]);
-      lc.setRow(0,ball_row[0]+1,row_off);
 
   
     }else if(ball_row[0]>=0 && ball_row[0]<7){
