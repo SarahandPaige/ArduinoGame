@@ -3,12 +3,13 @@
 const int sw_pin = 2;
 const int X_pin = 0;
 const int Y_pin = 1;
-byte snake = B00011000;
+byte snake = B00010000;
 int snake_row = 4;
 int old_snake_row = snake_row-1;
 byte row_off = B00000000;
+byte x[8] = {B10000001,B01000010,B00100100,B00011000,B00011000,B00100100,B01000010,B10000001};
 LedControl lc=LedControl(12,10,11,1);
-byte ball[60] = {B00010000};
+byte ball[60] = {B01000000};
 int ball_row[60] = {7};
 bool going_down[60] = {true};
 bool at_row_end[60] = {false};
@@ -16,7 +17,7 @@ bool at_row_top[60] = {false};
 int prev_ball_val[60] = {ball[0]};
 bool going_left[60] = {true};
 bool end_game = false;
-int count = 1;
+int ball_delay = 350;
 int cap = 0;
 byte random_byte;
 
@@ -86,79 +87,89 @@ void move_y(){
   }
   
 }
-void moving_balls(int i){
-   if((ball[i]>>7 &1 )==1){
-      going_left[i] = false;
+void moving_balls(){
+   if((ball[0]>>7 &1 )==1){
+      going_left[0] = false;
         
         
-    }else if(ball[i]&1==1){
-        going_left[i] = true;
+    }else if(ball[0]&1==1){
+        going_left[0] = true;
         
     }
-    if(((snake & ball[i])!=0)&& snake_row==ball_row[i]){
+    if(((snake & ball[0]>>1)!=0) && snake_row==ball_row[0] && prev_ball_val[0]<ball[0]){
       end_game = true;
-      Serial.println("got here");
+      Serial.println(ball[0],BIN);
+      Serial.println(snake,BIN);
     
     
-    }else if(ball_row[i]>0 && going_down[i]){
+    }else    if(((snake & ball[0]<<1)!=0) && snake_row==ball_row[0] && prev_ball_val[0]>ball[0]){
+      end_game = true;
+      Serial.println(ball[0],BIN);
+      Serial.println(snake,BIN);
+    
+    
+    
+    
+    }else if(ball_row[0]>0 && going_down[0]){
      
-      ball_row[i] --; 
-      at_row_end[i] = false;
-      if(snake_row==ball_row[i] ){
-        lc.setRow(0,ball_row[i],ball[i] | snake);
-        lc.setRow(0,ball_row[i]+1,row_off);
+      ball_row[0] --; 
+      at_row_end[0] = false;
+      if(snake_row==ball_row[0] ){
+        lc.setRow(0,ball_row[0],ball[0] | snake);
+        lc.setRow(0,ball_row[0]+1,row_off);
         
-      }else if (snake_row == ball_row[i]+1){
-        lc.setRow(0,ball_row[i],ball[i]);
-        lc.setRow(0,ball_row[i]+1,snake);
+      }else if (snake_row == ball_row[0]+1){
+        lc.setRow(0,ball_row[0],ball[0]);
+        lc.setRow(0,ball_row[0]+1,snake);
       }else{
-        lc.setRow(0,ball_row[i],ball[i]);
-        lc.setRow(0,ball_row[i]+1,row_off);
+        lc.setRow(0,ball_row[0],ball[0]);
+        lc.setRow(0,ball_row[0]+1,row_off);
       }
       
 
   
-    }else if(ball_row[i]>=0 && ball_row[i]<7){
-      if(ball_row[i]==0){
-        at_row_top[i] = true;
+    }else if(ball_row[0]>=0 && ball_row[0]<7){
+      if(ball_row[0]==0){
+        at_row_top[0] = true;
       }else{
-        at_row_top[i] = false;
+        at_row_top[0] = false;
       }
    
-      going_down[i]=false;
+      going_down[0]=false;
       
-      ball_row[i] ++;
-       if(ball_row[i]==0){
-        at_row_top[i] = true;
-       }else if(snake_row==ball_row[i]){
-          at_row_top[i] = false;
-          lc.setRow(0,ball_row[i],ball[i]|snake);
-          lc.setRow(0,ball_row[i]-1,row_off);
-        }else if(snake_row==ball_row[i]-1){
-          at_row_top[i] = false;
-          lc.setRow(0,ball_row[i],ball[i]);
-          lc.setRow(0,ball_row[i]-1,snake);
+      ball_row[0] ++;
+       if(ball_row[0]==0){
+        at_row_top[0] = true;
+       }else if(snake_row==ball_row[0]){
+          at_row_top[0] = false;
+          lc.setRow(0,ball_row[0],ball[0]|snake);
+          lc.setRow(0,ball_row[0]-1,row_off);
+        }else if(snake_row==ball_row[0]-1){
+          at_row_top[0] = false;
+          lc.setRow(0,ball_row[0],ball[0]);
+          lc.setRow(0,ball_row[0]-1,snake);
         }else{
-          at_row_top[i] = false;
-          lc.setRow(0,ball_row[i],ball[i]);
-          lc.setRow(0,ball_row[i]-1,row_off);
+          at_row_top[0] = false;
+          lc.setRow(0,ball_row[0],ball[0]);
+          lc.setRow(0,ball_row[0]-1,row_off);
         }
    
     
     }else{  
         
-      going_down[i] = true;
-      at_row_end[i] = true;
+      going_down[0] = true;
+      at_row_end[0] = true;
         
     }    
-    prev_ball_val[i] = ball[i];
+    prev_ball_val[0] = ball[0];
 
-    if(going_left[i] && !at_row_end[i] && !at_row_top[i]){
-      ball[i] = ball[i]<<1;
+    if(going_left[0] && !at_row_end[0] && !at_row_top[0]){
+      ball[0] = ball[0]<<1;
       
-    }else if (!at_row_top[i] && !at_row_end[i] ){
-      ball[i] = ball[i]>>1;
+    }else if (!at_row_top[0] && !at_row_end[0] ){
+      ball[0] = ball[0]>>1;
     }
+    
 }
 void loop() {
     
@@ -175,26 +186,30 @@ void loop() {
     move_y();
     
   }
+  
   if(!end_game){
-    for(int i=0;i<count;i++){
-      moving_balls(i); 
+    
+    moving_balls(); 
+    cap ++;
+    if(cap >=20 && ball[0]<255){
+      cap = cap-20;
+      if(ball[0]&1 !=0){
+        ball[0] = ball[0] +1;
+        ball_delay = ball_delay-75;
+        
+      }else{
+         ball[0] = ball[0] | (ball[0]>>1);
+         
+      }
+      
+     
     }
     
-  }
-  cap ++;
-  if(cap>=20){
-    cap = cap-20;
-    count ++;
-    random_byte = byte(random(0,9));
-    ball[count-1]=random_byte;
-    ball_row[count-1] = 6;
-    going_down[count-1] = true;
-    at_row_end[count-1] = false;
-    at_row_top[count-1] = false;
-    prev_ball_val[count-1] = ball[count-1];
-    going_left[count-1] = true;
+  }else{
+    for(int i=0;i<8;i++){
+      lc.setRow(0,i,x[i]);
+    }
   }
   
-  
-  delay(500);
+  delay(ball_delay);
 }
