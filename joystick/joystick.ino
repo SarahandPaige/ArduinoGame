@@ -11,10 +11,12 @@ bool going_up = false;
 bool going_down = true;
 bool end_game = false;
 bool going_left = true;
+bool at_row_end = false;
+bool at_row_top = false;
 
 
 LedControl lc=LedControl(12,10,11,1);
-byte bar = B00111000;
+byte bar = B00011000;
 byte ball = B00100000;
 void setup() {
   init();
@@ -33,6 +35,22 @@ void setup() {
 
 
 }
+int reverse_bar(int bar){
+  int reverse = 0;
+  int last_dig = B10000000;
+  for(int i=1;i<9;i++){
+    if((bar>>i&1)==1){
+      reverse = reverse | (last_dig>>i);
+      
+    }
+    
+  }
+  Serial.println(bar,BIN);
+  Serial.println(reverse,BIN);
+  return reverse;
+}
+
+
 
 void loop() {
   
@@ -42,69 +60,85 @@ void loop() {
     
   }else if (analogRead(X_pin)<517){
     //Serial.println("going Down");
-      if((bar>>7 &1) !=1){
-        
-        bar = bar<<1;
-      
+     if((bar & 1) !=1){
+      bar = bar>>1;
       lc.setRow(0,0,bar);
+      
     }
     
   }else if (analogRead(X_pin)>517){
     //Serial.println("going up");
-    if((bar & 1) !=1){
-      bar = bar>>1;
+   
+     if((bar>>7 &1) !=1){
+        
+        bar = bar<<1;
+      
       lc.setRow(0,0,bar);
+      
     }
   }
   
   if(!end_game){
-    if(ball_row>1 && going_down){
+   if(ball_row==1 && (ball&reverse_bar(bar)) ==0){
+      Serial.println("ball");
+      Serial.println(ball,BIN);
+      
+      end_game = true; 
+      
+    
+   }else if(ball_row>1 && going_down){
      
-      ball_row --;
-        
-        
-      //ball = ball <<1;
+      ball_row --; 
+      at_row_end = false;
       
       lc.setRow(0,ball_row,ball);
       lc.setRow(0,ball_row+1,row_off);
 
   
     }else if(ball_row>=1 && ball_row<7){
-      if(ball_row==1 && (ball&bar) ==0){
-        end_game = true; 
-        
+      if(ball_row==1){
+        at_row_top = true;
       }else{
-        going_down=false;
-        going_up=true;
-        ball_row ++;
-        
-        
-        //ball = ball >>1;
-        lc.setRow(0,ball_row,ball);
-        lc.setRow(0,ball_row-1,row_off);
+        at_row_top = false;
       }
+   
+      going_down=false;
+      
+      ball_row ++;
+       if(ball_row==1){
+        at_row_top = true;
+        }else{
+          at_row_top = false;
+          lc.setRow(0,ball_row,ball);
+          lc.setRow(0,ball_row-1,row_off);
+        }
+        
+        
+        
+        //lc.setRow(0,ball_row,ball);
+        //lc.setRow(0,ball_row-1,row_off);
+      
+ 
     
     
-    }else{
-      
-      
+    }else{  
         
       going_down = true;
-      going_up = false;
+      at_row_end = true;
         
     }    
     if((ball>>7 &1 )==1){
         going_left = false;
-        Serial.println("reached left");
+        
         
     }else if(ball&1==1){
         going_left = true;
-        Serial.println("reached right");
+        
     }
-    if(going_left){
+    if(going_left && !at_row_end && !at_row_top){
       ball = ball<<1;
       
-    }else{
+    }else if (!at_row_top && !at_row_end ){
       ball = ball>>1;
     }
     
@@ -116,7 +150,7 @@ void loop() {
   
   
   
-  delay(1000);
+  delay(500);
   
 
 }
