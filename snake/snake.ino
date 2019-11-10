@@ -86,78 +86,78 @@ void move_y(){
   }
   
 }
-void moving_balls(){
-   if((ball[0]>>7 &1 )==1){
-      going_left[0] = false;
+void moving_balls(int i){
+   if((ball[i]>>7 &1 )==1){
+      going_left[i] = false;
         
         
-    }else if(ball[0]&1==1){
-        going_left[0] = true;
+    }else if(ball[i]&1==1){
+        going_left[i] = true;
         
     }
-    if(((snake & ball[0])!=0)&& snake_row==ball_row[0]){
+    if(((snake & ball[i])!=0)&& snake_row==ball_row[i]){
       end_game = true;
       Serial.println("got here");
     
     
-    }else if(ball_row[0]>0 && going_down[0]){
+    }else if(ball_row[i]>0 && going_down[i]){
      
-      ball_row[0] --; 
-      at_row_end[0] = false;
-      if(snake_row==ball_row[0] ){
-        lc.setRow(0,ball_row[0],ball[0] | snake);
-        lc.setRow(0,ball_row[0]+1,row_off);
+      ball_row[i] --; 
+      at_row_end[i] = false;
+      if(snake_row==ball_row[i] ){
+        lc.setRow(0,ball_row[i],ball[i] | snake);
+        lc.setRow(0,ball_row[i]+1,row_off);
         
-      }else if (snake_row == ball_row[0]+1){
-        lc.setRow(0,ball_row[0],ball[0]);
-        lc.setRow(0,ball_row[0]+1,snake);
+      }else if (snake_row == ball_row[i]+1){
+        lc.setRow(0,ball_row[i],ball[i]);
+        lc.setRow(0,ball_row[i]+1,snake);
       }else{
-        lc.setRow(0,ball_row[0],ball[0]);
-        lc.setRow(0,ball_row[0]+1,row_off);
+        lc.setRow(0,ball_row[i],ball[i]);
+        lc.setRow(0,ball_row[i]+1,row_off);
       }
       
 
   
-    }else if(ball_row[0]>=0 && ball_row[0]<7){
-      if(ball_row[0]==0){
-        at_row_top[0] = true;
+    }else if(ball_row[i]>=0 && ball_row[i]<7){
+      if(ball_row[i]==0){
+        at_row_top[i] = true;
       }else{
-        at_row_top[0] = false;
+        at_row_top[i] = false;
       }
    
-      going_down[0]=false;
+      going_down[i]=false;
       
-      ball_row[0] ++;
-       if(ball_row[0]==0){
-        at_row_top[0] = true;
-       }else if(snake_row==ball_row[0]){
-          at_row_top[0] = false;
-          lc.setRow(0,ball_row[0],ball[0]|snake);
-          lc.setRow(0,ball_row[0]-1,row_off);
-        }else if(snake_row==ball_row[0]-1){
-          at_row_top[0] = false;
-          lc.setRow(0,ball_row[0],ball[0]);
-          lc.setRow(0,ball_row[0]-1,snake);
+      ball_row[i] ++;
+       if(ball_row[i]==0){
+        at_row_top[i] = true;
+       }else if(snake_row==ball_row[i]){
+          at_row_top[i] = false;
+          lc.setRow(0,ball_row[i],ball[i]|snake);
+          lc.setRow(0,ball_row[i]-1,row_off);
+        }else if(snake_row==ball_row[i]-1){
+          at_row_top[i] = false;
+          lc.setRow(0,ball_row[i],ball[i]);
+          lc.setRow(0,ball_row[i]-1,snake);
         }else{
-          at_row_top[0] = false;
-          lc.setRow(0,ball_row[0],ball[0]);
-          lc.setRow(0,ball_row[0]-1,row_off);
+          at_row_top[i] = false;
+          lc.setRow(0,ball_row[i],ball[i]);
+          lc.setRow(0,ball_row[i]-1,row_off);
         }
    
     
     }else{  
         
-      going_down[0] = true;
-      at_row_end[0] = true;
+      going_down[i] = true;
+      at_row_end[i] = true;
         
     }    
-    prev_ball_val[0] = ball[0];
+    prev_ball_val[i] = ball[i];
 
-    if(going_left[0] && !at_row_end[0] && !at_row_top[0]){
-      ball[0] = ball[0]<<1;
+    if(going_left[i] && !at_row_end[i] && !at_row_top[i]){
+      ball[i] = ball[i]<<1;
       
-    }else if (!at_row_top[0] && !at_row_end[0] ){
-      ball[0] = ball[0]>>1;
+    }else if (!at_row_top[i] && !at_row_end[i] ){
+      ball[i] = ball[i]>>1;
     }
 }
 void loop() {
@@ -176,16 +176,18 @@ void loop() {
     
   }
   if(!end_game){
+    for(int i=0;i<count;i++){
+      moving_balls(i); 
+    }
     
-    moving_balls();
   }
   cap ++;
-  if(cap>=30){
-    cap = cap-30;
+  if(cap>=20){
+    cap = cap-20;
     count ++;
     random_byte = byte(random(0,9));
     ball[count-1]=random_byte;
-    ball_row[count-1] = 7;
+    ball_row[count-1] = 6;
     going_down[count-1] = true;
     at_row_end[count-1] = false;
     at_row_top[count-1] = false;
