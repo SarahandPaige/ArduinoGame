@@ -8,6 +8,14 @@ const int bar_row[2] = {0,7};
 
 
 int ball_row = 6;
+const byte p1[8] = {B00000000,B11100010,B01000010,B01000010,B01001110,B01101010,B01001110,B00000000};
+const byte p2[8] = {B00000000,B11100001,B00100001,B00100001,B11101111,B10001001,B10001001,B11101111};
+const byte W[8] = {B00000000,B01110111,B01001001,B01001001,B01000001,B01000001,B01000001,B01000001};
+const byte I[8] = {B11111111,B00011000,B00011000,B00011000,B00011000,B00011000,B00011000,B11111111};
+const byte N[8] = {B10000001,B11000001,B10100001,B10010001,B10001001,B10000101,B10000011,B10000001};
+const byte S[8] = {B00111100,B00100100,B00100000,B00100000,B00111100,B00000100,B00100100,B00111100};
+const byte ex[8] = {B00011000,B00011000,B00000000,B00011000,B00011000,B00011000,B00011000,B00011000};
+
 
 
 int row_off = B00000000;
@@ -19,6 +27,7 @@ bool at_row_end = false;
 bool at_row_top = false;
 
 bool p2wins = false;
+bool not_moving = true;
 
 LedControl lc=LedControl(12,10,11,1);
 byte bar[2] = {B00011000,B00011000};
@@ -54,9 +63,12 @@ void setup() {
 
 
 void loop() {
+  
   for(int i=0;i<2;i++){
     if(analogRead(X_pin[i])<=600 && analogRead(X_pin[i])>=500 ){
     //Serial.println("not moving");
+      
+    
       
     }else if (analogRead(X_pin[i])<517){
       //Serial.println("going Down");
@@ -65,6 +77,7 @@ void loop() {
         lc.setRow(0,bar_row[i],bar[i]);
         
       }
+      
       
     }else if (analogRead(X_pin[i])>517){
       //Serial.println("going up");
@@ -76,6 +89,7 @@ void loop() {
         lc.setRow(0,bar_row[i],bar[i]);
         
       }
+      
     }
   
   }
@@ -173,15 +187,79 @@ void loop() {
     }
     
   }else{
-    lc.setRow(0,0,row_off);
+    if(p2wins){
+      for (int i=0;i<8;i++){
+        lc.setRow(0,i,p2[i]);
+      
+      }
+      delay(500);
+      for (int i=0;i<8;i++){
+        lc.setRow(0,i,W[i]);
+      }
+      delay(500);
+      for (int i=0;i<8;i++){
+        lc.setRow(0,i,I[i]);
+      }
+      delay(500);
+      for (int i=0;i<8;i++){
+        lc.setRow(0,i,N[i]);
+      }
+      delay(500);
+      for (int i=0;i<8;i++){
+        lc.setRow(0,i,S[i]);
+      }
+      delay(500);
+      for (int i=0;i<8;i++){
+        lc.setRow(0,i,ex[i]);
+      }
+      
+    }else{
+      for (int i=0;i<8;i++){
+        lc.setRow(0,i,p1[i]);
+      
+      }
+      delay(500);
+      for (int i=0;i<8;i++){
+        lc.setRow(0,i,W[i]);
+      }
+      delay(500);
+      for (int i=0;i<8;i++){
+        lc.setRow(0,i,I[i]);
+      }
+      delay(500);
+      for (int i=0;i<8;i++){
+        lc.setRow(0,i,N[i]);
+      }
+      delay(500);
+      for (int i=0;i<8;i++){
+        lc.setRow(0,i,S[i]);
+      }
+      delay(500);
+      for (int i=0;i<8;i++){
+        lc.setRow(0,i,ex[i]);
+      }
+      
+    }
+    
   }
+  /*
+  if(!(analogRead(X_pin[0])<=600 && analogRead(X_pin[0])>=500)&& end_game){
+    end_game = false;
+    for(int i=0;i<8;i++){
+      lc.setRow(0,i,row_off);
+    }
+    lc.setRow(0,bar_row[0],bar[0]);
+    lc.setRow(0,bar_row[1],bar[1]);
+  }
+  */
   
   
   
   
   
   
-  delay(350);
+  
+  delay(250);
   
 
 }
