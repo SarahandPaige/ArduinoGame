@@ -15,6 +15,10 @@ bool at_row_end[60] = {false};
 bool at_row_top[60] = {false};
 int prev_ball_val[60] = {ball[0]};
 bool going_left[60] = {true};
+bool end_game = false;
+int count = 1;
+int cap = 0;
+byte random_byte;
 
 void setup() {
   init();
@@ -91,15 +95,22 @@ void moving_balls(){
         going_left[0] = true;
         
     }
+    if(((snake & ball[0])!=0)&& snake_row==ball_row[0]){
+      end_game = true;
+      Serial.println("got here");
     
-     if(ball_row[0]>0 && going_down[0]){
+    
+    }else if(ball_row[0]>0 && going_down[0]){
      
       ball_row[0] --; 
       at_row_end[0] = false;
-      if(snake_row==ball_row[0]){
+      if(snake_row==ball_row[0] ){
         lc.setRow(0,ball_row[0],ball[0] | snake);
         lc.setRow(0,ball_row[0]+1,row_off);
         
+      }else if (snake_row == ball_row[0]+1){
+        lc.setRow(0,ball_row[0],ball[0]);
+        lc.setRow(0,ball_row[0]+1,snake);
       }else{
         lc.setRow(0,ball_row[0],ball[0]);
         lc.setRow(0,ball_row[0]+1,row_off);
@@ -119,19 +130,20 @@ void moving_balls(){
       ball_row[0] ++;
        if(ball_row[0]==0){
         at_row_top[0] = true;
+       }else if(snake_row==ball_row[0]){
+          at_row_top[0] = false;
+          lc.setRow(0,ball_row[0],ball[0]|snake);
+          lc.setRow(0,ball_row[0]-1,row_off);
+        }else if(snake_row==ball_row[0]-1){
+          at_row_top[0] = false;
+          lc.setRow(0,ball_row[0],ball[0]);
+          lc.setRow(0,ball_row[0]-1,snake);
         }else{
           at_row_top[0] = false;
           lc.setRow(0,ball_row[0],ball[0]);
           lc.setRow(0,ball_row[0]-1,row_off);
         }
-        
-        
-        
-        //lc.setRow(0,ball_row,ball);
-        //lc.setRow(0,ball_row-1,row_off);
-      
- 
-    
+   
     
     }else{  
         
@@ -163,7 +175,24 @@ void loop() {
     move_y();
     
   }
-  moving_balls();
+  if(!end_game){
+    
+    moving_balls();
+  }
+  cap ++;
+  if(cap>=30){
+    cap = cap-30;
+    count ++;
+    random_byte = byte(random(0,9));
+    ball[count-1]=random_byte;
+    ball_row[count-1] = 7;
+    going_down[count-1] = true;
+    at_row_end[count-1] = false;
+    at_row_top[count-1] = false;
+    prev_ball_val[count-1] = ball[count-1];
+    going_left[count-1] = true;
+  }
+  
   
   delay(500);
 }
