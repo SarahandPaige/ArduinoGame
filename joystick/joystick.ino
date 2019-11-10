@@ -6,6 +6,7 @@ const int X_pin = 0;
 const int Y_pin = 1;
 int ball_row = 7;
 
+
 int row_off = B00000000;
 bool going_up = false;
 bool going_down = true;
@@ -18,6 +19,7 @@ bool at_row_top = false;
 LedControl lc=LedControl(12,10,11,1);
 byte bar = B00011000;
 byte ball = B00100000;
+byte prev_ball_val = ball;
 void setup() {
   init();
   Serial.begin(9600);
@@ -79,12 +81,24 @@ void loop() {
   }
   
   if(!end_game){
-   if(ball_row==1 && (ball&reverse_bar(bar)) ==0){
-      Serial.println("ball");
+    if((ball>>7 &1 )==1){
+      going_left = false;
+        
+        
+    }else if(ball&1==1){
+        going_left = true;
+        
+    }
+   if(ball_row==1 && ((ball<<1)&bar) ==0 && prev_ball_val>ball){
+      Serial.println("ball right");
       Serial.println(ball,BIN);
       
       end_game = true; 
+   }else if(ball_row==1 && ((ball>>1)&bar) ==0 && prev_ball_val<ball){
+      Serial.println("ball left");
+      Serial.println(ball,BIN);
       
+      end_game = true; 
     
    }else if(ball_row>1 && going_down){
      
@@ -127,14 +141,8 @@ void loop() {
       at_row_end = true;
         
     }    
-    if((ball>>7 &1 )==1){
-        going_left = false;
-        
-        
-    }else if(ball&1==1){
-        going_left = true;
-        
-    }
+    prev_ball_val = ball;
+
     if(going_left && !at_row_end && !at_row_top){
       ball = ball<<1;
       
@@ -150,7 +158,7 @@ void loop() {
   
   
   
-  delay(500);
+  delay(200);
   
 
 }
